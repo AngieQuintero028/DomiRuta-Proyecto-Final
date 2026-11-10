@@ -36,3 +36,24 @@ class ListaEnlazada:
             self._cola.siguiente = nuevo_nodo # Si ya habia elementos, el nodo que era el ultimo ahora apunta al nuevo nodo
             self._cola = nuevo_nodo # Actualizamos la referencia cola para que el nuevo nodo sea ahora el ultimo de la fila
         self.tamano += 1 # Incrementamos el tamano total
+
+    def obtener(self, pos(int)) -> T:
+        # 0(n): Retorna el dato en la posicion indicada. Lanza IndexError si no es valida
+        if pos <0 or pos >= self.tamano: #Validamos que la posicion pedida no sea negativa ni mayor o igual al tamano total de la lista
+            raise IndexError("La posicion esta fuera de rango en la lista enlazada")
+
+        actual = self.cabeza
+        for _ in range(pos): # Damos tantos pasos hacia adelante como indique la posicion para llegar al nodo exacto
+            actual = actual.siguiente #Type: ignore
+        return actual.dato # type: ignore Devolvemos el valor que esta guardado en ese nodo
+
+    def buscar(self, dato: T) -> int:
+        # 0(n): Retorna la posicion de la primera coincidencia del dato o -1 si no existe
+        actual = self.cabeza #Arrancamos desde el inicio con el contador de posiciones en 0
+        pos = 0
+        while actual is not None: #Recorremos nodo por nodo mientras existan elementos
+            if actual.dato == dato: # Si el dato del nodo actual coincide con lo que buscamos, devolvemos de inmediato la posicion
+                return pos
+            actual = actual.siguiente # Si no es, avanzamos al siguiente nodo y sumamos uno a la posicion
+            pos += 1
+        return -1 # Si el ciclo termina y no encontramos nada, devolvemos -1
