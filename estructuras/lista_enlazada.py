@@ -1,12 +1,16 @@
+from typing import Generic, Optional, TypeVar
 from estructuras.nodo import nodo
 
-class ListaEnlazada:
+T = TypeVar("T")
+
+class ListaEnlazada(Generic[T]):
     def __init__(self):
-        self.cabeza = None  #Apunta al primer nodo de la lista (empieza vacia)
+        self.cabeza: Optional[nodo[T]] = None  #Apunta al primer nodo de la lista (empieza vacia)
+        self._cola: Optional[nodo[T]] = None
         self.tamano = 0     #Cuenta cuantos elementos hay
 
 
-    def esta_vacia(self):
+    def esta_vacia(self) -> bool:
         # 0(1): Retorna True si la cabeza es None (no hay elementos)
         return self.cabeza is None
 
@@ -15,7 +19,7 @@ class ListaEnlazada:
     de forma instantanea
     """
     
-    def __len__(self):
+    def __len__(self) -> int:
         # 0(1): Devuelve el numero total de elementos almacenados
         return self.tamano
 
@@ -24,6 +28,10 @@ class ListaEnlazada:
         nuevo_nodo = nodo(dato) # Creamos un nuevo vagon o nodo que guarda el dato que pasaste por parametro
         nuevo_nodo.siguiente = self.cabeza #El puntero del nuevo nodo ahora apunta a donde antes apuntaba la cabeza. asi no perdemos la lista que ya teniamos
         self.cabeza = nuevo_nodo # Convertimos el nuevo nodo ahora en la nueva cabeza
+        
+        # Si estaba vacía, el nuevo nodo también es la cola.
+        if self._cola is None:
+            self._cola = nuevo_nodo
         self.tamano += 1 # Sumamos uno al contador de tamano de la lista
 
     def insertar_final(self, dato: T) -> None:
@@ -33,11 +41,13 @@ class ListaEnlazada:
             self.cabeza = nuevo_nodo 
             self._cola = nuevo_nodo
         else:
+            # En una lista no vacía, la cola debe existir.
+            assert self._cola is not None
             self._cola.siguiente = nuevo_nodo # Si ya habia elementos, el nodo que era el ultimo ahora apunta al nuevo nodo
             self._cola = nuevo_nodo # Actualizamos la referencia cola para que el nuevo nodo sea ahora el ultimo de la fila
         self.tamano += 1 # Incrementamos el tamano total
 
-    def obtener(self, pos(int)) -> T:
+    def obtener(self, pos:int) -> T:
         # 0(n): Retorna el dato en la posicion indicada. Lanza IndexError si no es valida
         if pos <0 or pos >= self.tamano: #Validamos que la posicion pedida no sea negativa ni mayor o igual al tamano total de la lista
             raise IndexError("La posicion esta fuera de rango en la lista enlazada")
@@ -45,12 +55,14 @@ class ListaEnlazada:
         actual = self.cabeza
         for _ in range(pos): # Damos tantos pasos hacia adelante como indique la posicion para llegar al nodo exacto
             actual = actual.siguiente #Type: ignore
+        assert actual is not None
         return actual.dato # type: ignore Devolvemos el valor que esta guardado en ese nodo
 
     def buscar(self, dato: T) -> int:
         # 0(n): Retorna la posicion de la primera coincidencia del dato o -1 si no existe
         actual = self.cabeza #Arrancamos desde el inicio con el contador de posiciones en 0
         pos = 0
+
         while actual is not None: #Recorremos nodo por nodo mientras existan elementos
             if actual.dato == dato: # Si el dato del nodo actual coincide con lo que buscamos, devolvemos de inmediato la posicion
                 return pos
